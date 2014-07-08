@@ -55,7 +55,7 @@
 class PythonQtClassInfo;
 
 //! the type of the PythonQt class wrapper objects
-extern PYTHONQT_EXPORT PyTypeObject PythonQtClassWrapper_Type;
+extern PYTHONQT_EXPORT PyTypeObject global_PythonQtClassWrapper_Type;
 
 //---------------------------------------------------------------
 //! a Python wrapper object for PythonQt wrapped classes

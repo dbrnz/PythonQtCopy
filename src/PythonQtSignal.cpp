@@ -66,10 +66,10 @@ PythonQtSignalFunction_New(PythonQtSlotInfo *ml, PyObject *self, PyObject *modul
   op = PythonQtSignal_free_list;
   if (op != NULL) {
     PythonQtSignal_free_list = (PythonQtSignalFunctionObject *)(op->m_self);
-    PyObject_INIT(op, &PythonQtSignalFunction_Type);
+    PyObject_INIT(op, PythonQt::self()->PythonQtSignalFunctionType());
   }
   else {
-    op = PyObject_GC_New(PythonQtSignalFunctionObject, &PythonQtSignalFunction_Type);
+    op = PyObject_GC_New(PythonQtSignalFunctionObject, PythonQt::self()->PythonQtSignalFunctionType());
     if (op == NULL)
       return NULL;
   }
@@ -189,7 +189,7 @@ static PyObject *PythonQtSignalFunction_typeName(PythonQtSignalFunctionObject* t
 
 static PyObject *PythonQtSignalFunction_connect(PythonQtSignalFunctionObject* type, PyObject *args)
 {
-  if (PyObject_TypeCheck(type->m_self, &PythonQtInstanceWrapper_Type)) {
+  if (PyObject_TypeCheck(type->m_self, PythonQt::self()->PythonQtInstanceWrapperType())) {
     PythonQtInstanceWrapper* self = (PythonQtInstanceWrapper*) type->m_self;
     if (self->_obj) {
       Py_ssize_t argc = PyTuple_Size(args);
@@ -212,7 +212,7 @@ static PyObject *PythonQtSignalFunction_connect(PythonQtSignalFunctionObject* ty
 
 static PyObject *PythonQtSignalFunction_disconnect(PythonQtSignalFunctionObject* type, PyObject *args)
 {
-  if (PyObject_TypeCheck(type->m_self, &PythonQtInstanceWrapper_Type)) {
+  if (PyObject_TypeCheck(type->m_self, PythonQt::self()->PythonQtInstanceWrapperType())) {
     PythonQtInstanceWrapper* self = (PythonQtInstanceWrapper*) type->m_self;
     if (self->_obj) {
       Py_ssize_t argc = PyTuple_Size(args);
@@ -269,7 +269,7 @@ static PyMethodDef meth_methods[] = {
 static PyObject *
 meth_repr(PythonQtSignalFunctionObject *f)
 {
-  if (f->m_self->ob_type == &PythonQtClassWrapper_Type) {
+  if (f->m_self->ob_type == PythonQt::self()->PythonQtClassWrapperType()) {
     PythonQtClassWrapper* self = (PythonQtClassWrapper*) f->m_self;
 #ifdef PY3K
     return PyUnicode_FromFormat("<unbound qt signal %s of %s type>",
@@ -351,7 +351,7 @@ meth_richcompare(PythonQtSignalFunctionObject *a, PythonQtSignalFunctionObject *
     Py_RETURN_FALSE;
 }
 
-PyTypeObject PythonQtSignalFunction_Type = {
+PyTypeObject global_PythonQtSignalFunction_Type = {
   PyVarObject_HEAD_INIT(&PyType_Type, 0)
     "builtin_qt_signal",
     sizeof(PythonQtSignalFunctionObject),

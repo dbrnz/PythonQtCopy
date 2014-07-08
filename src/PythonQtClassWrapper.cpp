@@ -82,7 +82,7 @@ static PyObject* PythonQtInstanceWrapper_binaryfunc(PyObject* self, PyObject* ot
 {
   // since we disabled type checking, we can receive any object as self, but we currently only support
   // different objects on the right. Otherwise we would need to generate __radd__ etc. methods.
-  if (!PyObject_TypeCheck(self, &PythonQtInstanceWrapper_Type)) {
+  if (!PyObject_TypeCheck(self, PythonQt::self()->PythonQtInstanceWrapperType())) {
     QString error = "Unsupported operation " + opName + "(" + self->ob_type->tp_name + ", " +  other->ob_type->tp_name + ")";
     PyErr_SetString(PyExc_ArithmeticError, error.toLatin1().data());
     return NULL;
@@ -260,10 +260,11 @@ static int PythonQtClassWrapper_init(PythonQtClassWrapper* self, PyObject* args,
     //  ...
     // class MyWidget(MyWidgetBase):
     //  ...
-    while( superType && Py_TYPE(superType) != &PythonQtClassWrapper_Type )
+    PyTypeObject *ClassWrapperType = PythonQt::self()->PythonQtClassWrapperType();
+    while( superType && Py_TYPE(superType) != ClassWrapperType )
         superType = superType->tp_base;
 
-    if (!superType || (Py_TYPE(superType) != &PythonQtClassWrapper_Type)) {
+    if (!superType || (Py_TYPE(superType) != ClassWrapperType)) {
       PyErr_Format(PyExc_TypeError, "type %s is not derived from PythonQtClassWrapper", ((PyTypeObject*)self)->tp_name);
       return -1;
     }
@@ -296,7 +297,7 @@ PyObject *PythonQtClassWrapper_delete(PythonQtClassWrapper *type, PyObject *args
   Py_ssize_t argc = PyTuple_Size(args);
   if (argc>0) {
     PyObject* self = PyTuple_GET_ITEM(args, 0);
-    if (PyObject_TypeCheck(self, &PythonQtInstanceWrapper_Type)) {
+    if (PyObject_TypeCheck(self, PythonQt::self()->PythonQtInstanceWrapperType())) {
       return PythonQtInstanceWrapper_delete((PythonQtInstanceWrapper*)self);
     }
   }
@@ -308,7 +309,8 @@ PyObject *PythonQtClassWrapper_inherits(PythonQtClassWrapper *type, PyObject *ar
   Q_UNUSED(type);
   PythonQtInstanceWrapper* wrapper = NULL;
   char *name = NULL;
-  if (!PyArg_ParseTuple(args, "O!s:PythonQtClassWrapper.inherits",&PythonQtInstanceWrapper_Type, &wrapper, &name)) {
+  if (!PyArg_ParseTuple(args, "O!s:PythonQtClassWrapper.inherits",
+                        PythonQt::self()->PythonQtInstanceWrapperType(), &wrapper, &name)) {
     return NULL;
   }
   return PythonQtConv::GetPyBool(wrapper->classInfo()->inherits(name));
@@ -344,7 +346,7 @@ static PyObject *PythonQtClassWrapper_getattro(PyObject *obj, PyObject *name)
 #endif
     return NULL;
   }
-  if (obj == (PyObject*)&PythonQtInstanceWrapper_Type) {
+  if (obj == (PyObject*)PythonQt::self()->PythonQtInstanceWrapperType()) {
     return NULL;
   }
 
@@ -458,7 +460,7 @@ static PyObject * PythonQtClassWrapper_repr(PyObject * obj)
 
 */
 
-PyTypeObject PythonQtClassWrapper_Type = {
+PyTypeObject global_PythonQtClassWrapper_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "PythonQt.PythonQtClassWrapper",             /*tp_name*/
     sizeof(PythonQtClassWrapper),             /*tp_basicsize*/

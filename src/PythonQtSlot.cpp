@@ -247,7 +247,7 @@ PyObject *PythonQtSlotFunction_Call(PyObject *func, PyObject *args, PyObject *kw
 
 PyObject *PythonQtMemberFunction_Call(PythonQtSlotInfo* info, PyObject* m_self, PyObject *args, PyObject *kw)
 {
-  if (PyObject_TypeCheck(m_self, &PythonQtInstanceWrapper_Type)) {
+  if (PyObject_TypeCheck(m_self, PythonQt::self()->PythonQtInstanceWrapperType())) {
     PythonQtInstanceWrapper* self = (PythonQtInstanceWrapper*) m_self;
     if (!info->isClassDecorator() && (self->_obj==NULL && self->_wrappedPtr==NULL)) {
       QString error = QString("Trying to call '") + info->slotName() + "' on a destroyed " + self->classInfo()->className() + " object";
@@ -256,7 +256,7 @@ PyObject *PythonQtMemberFunction_Call(PythonQtSlotInfo* info, PyObject* m_self, 
     } else {
       return PythonQtSlotFunction_CallImpl(self->classInfo(), self->_obj, info, args, kw, self->_wrappedPtr);
     }
-  } else if (m_self->ob_type == &PythonQtClassWrapper_Type) {
+  } else if (m_self->ob_type == PythonQt::self()->PythonQtClassWrapperType()) {
     PythonQtClassWrapper* type = (PythonQtClassWrapper*) m_self;
     if (info->isClassDecorator()) {
       return PythonQtSlotFunction_CallImpl(type->classInfo(), NULL, info, args, kw);
@@ -265,7 +265,7 @@ PyObject *PythonQtMemberFunction_Call(PythonQtSlotInfo* info, PyObject* m_self, 
       Py_ssize_t argc = PyTuple_Size(args);
       if (argc>0) {
         PyObject* firstArg = PyTuple_GET_ITEM(args, 0);
-        if (PyObject_TypeCheck(firstArg, (PyTypeObject*)&PythonQtInstanceWrapper_Type)
+        if (PyObject_TypeCheck(firstArg, (PyTypeObject*)PythonQt::self()->PythonQtInstanceWrapperType())
           && ((PythonQtInstanceWrapper*)firstArg)->classInfo()->inherits(type->classInfo())) {
           PythonQtInstanceWrapper* self = (PythonQtInstanceWrapper*)firstArg;
           if (!info->isClassDecorator() && (self->_obj==NULL && self->_wrappedPtr==NULL)) {
@@ -363,10 +363,10 @@ PythonQtSlotFunction_New(PythonQtSlotInfo *ml, PyObject *self, PyObject *module)
   op = pythonqtslot_free_list;
   if (op != NULL) {
     pythonqtslot_free_list = (PythonQtSlotFunctionObject *)(op->m_self);
-    PyObject_INIT(op, &PythonQtSlotFunction_Type);
+    PyObject_INIT(op, PythonQt::self()->PythonQtSlotFunctionType());
   }
   else {
-    op = PyObject_GC_New(PythonQtSlotFunctionObject, &PythonQtSlotFunction_Type);
+    op = PyObject_GC_New(PythonQtSlotFunctionObject, PythonQt::self()->PythonQtSlotFunctionType());
     if (op == NULL)
       return NULL;
   }
@@ -596,7 +596,7 @@ static PyMethodDef meth_methods[] = {
 static PyObject *
 meth_repr(PythonQtSlotFunctionObject *f)
 {
-  if (f->m_self->ob_type == &PythonQtClassWrapper_Type) {
+  if (f->m_self->ob_type == PythonQt::self()->PythonQtClassWrapperType()) {
     PythonQtClassWrapper* self = (PythonQtClassWrapper*) f->m_self;
 #ifdef PY3K
     return PyUnicode_FromFormat("<unbound qt slot %s of %s type>",
@@ -679,7 +679,7 @@ meth_richcompare(PythonQtSlotFunctionObject *a, PythonQtSlotFunctionObject *b, i
 }
 
 
-PyTypeObject PythonQtSlotFunction_Type = {
+PyTypeObject global_PythonQtSlotFunction_Type = {
   PyVarObject_HEAD_INIT(&PyType_Type, 0)
     "builtin_qt_slot",
     sizeof(PythonQtSlotFunctionObject),

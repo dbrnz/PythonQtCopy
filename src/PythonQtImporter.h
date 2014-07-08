@@ -44,6 +44,8 @@
 
 #include "PythonQtPythonInclude.h"
 
+#include "PythonQtSystem.h"
+
 #include "structmember.h"
 #include "osdefs.h"
 #include "marshal.h"
@@ -52,6 +54,10 @@
 
 #include <qobject.h>
 #include <qstring.h>
+
+
+extern PYTHONQT_EXPORT PyTypeObject global_PythonQtImporter_Type;
+extern PYTHONQT_EXPORT PyObject* global_PythonQtImportError;
 
 
 //! defines a python object that stores a Qt slot info

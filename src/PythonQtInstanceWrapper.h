@@ -55,7 +55,7 @@
 class PythonQtClassInfo;
 class QObject;
 
-extern PYTHONQT_EXPORT PyTypeObject PythonQtInstanceWrapper_Type;
+extern PYTHONQT_EXPORT PyTypeObject global_PythonQtInstanceWrapper_Type;
 
 //---------------------------------------------------------------
 //! a Python wrapper object for Qt objects and C++ objects (that are themselves wrapped by wrapper QObjects)

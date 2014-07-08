@@ -177,9 +177,9 @@ QObject* PythonQtStdDecorators::findChild(QObject* parent, PyObject* type, const
   const QMetaObject* meta = NULL;
   const char* typeName = NULL;
 
-  if (PyObject_TypeCheck(type, &PythonQtClassWrapper_Type)) {
+  if (PyObject_TypeCheck(type, PythonQt::self()->PythonQtClassWrapperType())) {
     meta = ((PythonQtClassWrapper*)type)->classInfo()->metaObject();
-  } else if (PyObject_TypeCheck(type, &PythonQtInstanceWrapper_Type)) {
+  } else if (PyObject_TypeCheck(type, PythonQt::self()->PythonQtInstanceWrapperType())) {
     meta = ((PythonQtInstanceWrapper*)type)->classInfo()->metaObject();
 #ifdef PY3K
   } else if (PyUnicode_Check(type)) {
@@ -201,9 +201,9 @@ QList<QObject*> PythonQtStdDecorators::findChildren(QObject* parent, PyObject* t
   const QMetaObject* meta = NULL;
   const char* typeName = NULL;
 
-  if (PyObject_TypeCheck(type, &PythonQtClassWrapper_Type)) {
+  if (PyObject_TypeCheck(type, PythonQt::self()->PythonQtClassWrapperType())) {
     meta = ((PythonQtClassWrapper*)type)->classInfo()->metaObject();
-  } else if (PyObject_TypeCheck(type, &PythonQtInstanceWrapper_Type)) {
+  } else if (PyObject_TypeCheck(type, PythonQt::self()->PythonQtInstanceWrapperType())) {
     meta = ((PythonQtInstanceWrapper*)type)->classInfo()->metaObject();
 #ifdef PY3K
   } else if (PyUnicode_Check(type)) {
@@ -229,9 +229,9 @@ QList<QObject*> PythonQtStdDecorators::findChildren(QObject* parent, PyObject* t
   const QMetaObject* meta = NULL;
   const char* typeName = NULL;
 
-  if (PyObject_TypeCheck(type, &PythonQtClassWrapper_Type)) {
+  if (PyObject_TypeCheck(type, PythonQt::self()->PythonQtClassWrapperType())) {
     meta = ((PythonQtClassWrapper*)type)->classInfo()->metaObject();
-  } else if (PyObject_TypeCheck(type, &PythonQtInstanceWrapper_Type)) {
+  } else if (PyObject_TypeCheck(type, PythonQt::self()->PythonQtInstanceWrapperType())) {
     meta = ((PythonQtInstanceWrapper*)type)->classInfo()->metaObject();
 #ifdef PY3K
   } else if (PyUnicode_Check(type)) {

@@ -164,13 +164,17 @@ public:
   //! initialize the python qt binding (flags are a or combination of PythonQt::InitFlags), if \c pythonQtModuleName is given
   //! it defines the name of the python module that PythonQt will add, otherwise "PythonQt" is used.
   //! This can be used to e.g. pass in PySide or PyQt4 to make it more compatible.
-  static void init(int flags = IgnoreSiteModule | RedirectStdOut, const QByteArray& pythonQtModuleName = QByteArray());
+  static PythonQt* init(int flags = IgnoreSiteModule | RedirectStdOut, const QByteArray& pythonQtModuleName = QByteArray());
 
   //! cleanup of the singleton
   static void cleanup();
 
   //! get the singleton instance
   static PythonQt* self();
+
+  //! Set the singleton instance. This is for use when PythonQt is dynamically linked into plugins,
+  //! allowing subsequent plugins to use a PythonQt instance created by the first loaded plugin.
+  static void setSelf(PythonQt* self);
 
   //@}
 
@@ -513,6 +517,30 @@ public:
   //! sets a callback that is called before and after function calls for profiling
   void setProfilingCallback(ProfilingCB* cb);
 
+  //! get the type of the slot function class
+  PyTypeObject* PythonQtSlotFunctionType(void) { return _PythonQtSlotFunctionType; }
+
+  //! get the type of the signal function class
+  PyTypeObject* PythonQtSignalFunctionType(void) { return _PythonQtSignalFunctionType; }
+
+  //! get the type of the class wrapper class
+  PyTypeObject* PythonQtClassWrapperType(void) { return _PythonQtClassWrapperType; }
+
+  //! get the type of the instance wrapper class
+  PyTypeObject* PythonQtInstanceWrapperType(void) { return _PythonQtInstanceWrapperType; }
+
+  //! get the type of the stdout redirection class
+  PyTypeObject* PythonQtStdOutRedirectType(void) { return _PythonQtStdOutRedirectType; }
+
+  //! get the type of the stdin redirection class
+  PyTypeObject* PythonQtStdInRedirectType(void) { return _PythonQtStdInRedirectType; }
+
+  //! get the type of the importer class
+  PyTypeObject* PythonQtImporterType(void) { return _PythonQtImporterType; }
+
+  //! get the import error exception
+  PyObject* PythonQtImportError(void) { return _PythonQtImportError; }
+
   //@}
 
 Q_SIGNALS:
@@ -548,9 +576,20 @@ private:
   ~PythonQt();
 
   static PythonQt* _self;
-  static int _uniqueModuleCount;
+  
+  int _uniqueModuleCount;
 
   PythonQtPrivate* _p;
+
+  PyTypeObject* _PythonQtSlotFunctionType;
+  PyTypeObject* _PythonQtSignalFunctionType;
+  PyTypeObject* _PythonQtClassWrapperType;
+  PyTypeObject* _PythonQtInstanceWrapperType;
+  PyTypeObject* _PythonQtStdOutRedirectType;
+  PyTypeObject* _PythonQtStdInRedirectType;
+  PyTypeObject* _PythonQtImporterType;
+
+  PyObject* _PythonQtImportError;
 
 };
 
@@ -560,7 +599,7 @@ class PYTHONQT_EXPORT PythonQtPrivate : public QObject {
   Q_OBJECT
 
 public:
-  PythonQtPrivate();
+  PythonQtPrivate(PythonQt *);
   ~PythonQtPrivate();
 
   enum DecoratorTypes {
@@ -736,6 +775,10 @@ private:
 
   bool _hadError;
   bool _systemExitExceptionHandlerEnabled;
+
+  PythonQt* _pyqt ;
+
+  PyObject* _dummyTuple;
 
   friend class PythonQt;
 };

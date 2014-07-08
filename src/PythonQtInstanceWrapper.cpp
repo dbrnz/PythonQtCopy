@@ -169,7 +169,7 @@ int PythonQtInstanceWrapper_init(PythonQtInstanceWrapper * self, PyObject * args
         // to activate the shell class, otherwise we just ignore that it is a shell...
         // we detect it be checking if the type does not have PythonQtInstanceWrapper_Type as direct base class,
         // which is the case for all non-python derived types
-        if (((PyObject*)self)->ob_type->tp_base != &PythonQtInstanceWrapper_Type) {
+        if (((PyObject*)self)->ob_type->tp_base != PythonQt::self()->PythonQtInstanceWrapperType()) {
           // set the wrapper and remember that we have a shell instance!
           (*cb)(directCPPPointer, self);
           self->_isShellInstance = true;
@@ -188,8 +188,8 @@ static PyObject *PythonQtInstanceWrapper_richcompare(PythonQtInstanceWrapper* wr
 {
   bool validPtrs = false;
   bool areSamePtrs = false;
-  if (PyObject_TypeCheck((PyObject*)wrapper, &PythonQtInstanceWrapper_Type)) {
-    if (PyObject_TypeCheck(other, &PythonQtInstanceWrapper_Type)) {
+  if (PyObject_TypeCheck((PyObject*)wrapper, PythonQt::self()->PythonQtInstanceWrapperType())) {
+    if (PyObject_TypeCheck(other, PythonQt::self()->PythonQtInstanceWrapperType())) {
       validPtrs = true;
       PythonQtInstanceWrapper* w1 = wrapper;
       PythonQtInstanceWrapper* w2 = (PythonQtInstanceWrapper*)other;
@@ -591,7 +591,7 @@ static int PythonQtInstanceWrapper_setattro(PyObject *obj,PyObject *name,PyObjec
     // if we are a direct CPP wrapper, we do NOT allow it, since
     // it would be confusing to allow it because a wrapper will go away when it is not seen by python anymore
     // and when it is recreated from a CPP pointer the attributes are gone...
-    if (obj->ob_type->tp_base != &PythonQtInstanceWrapper_Type) {
+    if (obj->ob_type->tp_base != PythonQt::self()->PythonQtInstanceWrapperType()) {
       return PyBaseObject_Type.tp_setattro(obj,name,value);
     } else {
       error = QString("'") + attributeName + "' does not exist on " + obj->ob_type->tp_name + " and creating new attributes on C++ objects is not allowed";
@@ -799,8 +799,8 @@ static PyNumberMethods PythonQtInstanceWrapper_as_number = {
 #endif
 };
 
-PyTypeObject PythonQtInstanceWrapper_Type = {
-    PyVarObject_HEAD_INIT(&PythonQtClassWrapper_Type, 0)
+PyTypeObject global_PythonQtInstanceWrapper_Type = {
+    PyVarObject_HEAD_INIT(&global_PythonQtClassWrapper_Type, 0)
     "PythonQt.PythonQtInstanceWrapper",             /*tp_name*/
     sizeof(PythonQtInstanceWrapper),             /*tp_basicsize*/
     0,                         /*tp_itemsize*/

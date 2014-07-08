@@ -371,7 +371,7 @@ void* PythonQtConv::ConvertPythonToQt(const PythonQtMethodInfo::ParameterInfo& i
      }
    }
 
-   if (PyObject_TypeCheck(obj, &PythonQtInstanceWrapper_Type) && info.typeId != PythonQtMethodInfo::Variant) {
+   if (PyObject_TypeCheck(obj, PythonQt::self()->PythonQtInstanceWrapperType()) && info.typeId != PythonQtMethodInfo::Variant) {
      // if we have a Qt wrapper object and if we do not need a QVariant, we do the following:
      // (the Variant case is handled below in a switch)
 
@@ -984,7 +984,7 @@ QVariant PythonQtConv::PyObjToQVariant(PyObject* val, int type)
       type = QVariant::LongLong;
     } else if (PyFloat_Check(val)) {
       type = QVariant::Double;
-    } else if (PyObject_TypeCheck(val, &PythonQtInstanceWrapper_Type)) {
+    } else if (PyObject_TypeCheck(val, PythonQt::self()->PythonQtInstanceWrapperType())) {
       PythonQtInstanceWrapper* wrap = (PythonQtInstanceWrapper*)val;
       // c++ wrapper, check if the class names of the c++ objects match
       if (wrap->classInfo()->isCPPWrapper()) {
@@ -1157,7 +1157,7 @@ QVariant PythonQtConv::PyObjToQVariant(PyObject* val, int type)
     break;
 
   default:
-    if (PyObject_TypeCheck(val, &PythonQtInstanceWrapper_Type)) {
+    if (PyObject_TypeCheck(val, PythonQt::self()->PythonQtInstanceWrapperType())) {
       PythonQtInstanceWrapper* wrap = (PythonQtInstanceWrapper*)val;
       if (wrap->classInfo()->isCPPWrapper() && wrap->classInfo()->metaTypeId() == type) {
         // construct a new variant from the C++ object if it has the same meta type
@@ -1263,7 +1263,7 @@ bool PythonQtConv::ConvertPythonListToQListOfPointerType(PyObject* obj, QList<vo
     PyObject* value;
     for (int i = 0;i<count;i++) {
       value = PySequence_GetItem(obj,i);
-      if (PyObject_TypeCheck(value, &PythonQtInstanceWrapper_Type)) {
+      if (PyObject_TypeCheck(value, PythonQt::self()->PythonQtInstanceWrapperType())) {
         PythonQtInstanceWrapper* wrap = (PythonQtInstanceWrapper*)value;
         bool ok;
         void* object = castWrapperTo(wrap, type, ok);

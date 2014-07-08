@@ -49,7 +49,7 @@
 #include <QString>
 
 //! declares the type of the stdout redirection class
-extern PyTypeObject PythonQtStdOutRedirectType;
+extern PyTypeObject global_PythonQtStdOutRedirect_Type;
 
 //! declares the callback that is called from the write() function
 typedef void PythonQtOutputChangedCB(const QString& str);

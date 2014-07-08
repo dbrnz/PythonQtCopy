@@ -75,9 +75,6 @@ struct st_mlab_searchorder {
   {"", 0}
 };
 
-extern PyTypeObject PythonQtImporter_Type;
-PyObject *PythonQtImportError;
-
 QString PythonQtImport::getSubName(const QString& str)
 {
   int idx = str.lastIndexOf('.');
@@ -138,7 +135,7 @@ int PythonQtImporter_init(PythonQtImporter *self, PyObject *args, PyObject * /*k
     const QStringList& ignorePaths = PythonQt::self()->getImporterIgnorePaths();
     Q_FOREACH(QString ignorePath, ignorePaths) {
       if (path.startsWith(ignorePath)) {
-        PyErr_SetString(PythonQtImportError,
+        PyErr_SetString(PythonQt::self()->PythonQtImportError(),
           "path ignored");
         return -1;
       }
@@ -147,7 +144,7 @@ int PythonQtImporter_init(PythonQtImporter *self, PyObject *args, PyObject * /*k
     self->_path = new QString(path);
     return 0;
   } else {
-    PyErr_SetString(PythonQtImportError,
+    PyErr_SetString(PythonQt::self()->PythonQtImportError(),
         "path does not exist error");
     return -1;
   }
@@ -403,7 +400,7 @@ Create a new PythonQtImporter instance. 'path' must be a valid path on disk/or i
 
 #define DEFERRED_ADDRESS(ADDR) 0
 
-PyTypeObject PythonQtImporter_Type = {
+PyTypeObject global_PythonQtImporter_Type = {
   PyVarObject_HEAD_INIT(DEFERRED_ADDRESS(&PyType_Type), 0)
   "PythonQtImport.PythonQtImporter",
   sizeof(PythonQtImporter),
@@ -445,6 +442,7 @@ PyTypeObject PythonQtImporter_Type = {
   PyObject_Del,     /* tp_free */
 };
 
+PyObject* global_PythonQtImportError;
 
 /* Given a buffer, return the long that is represented by the first
    4 bytes, encoded as little endian. This partially reimplements
@@ -720,7 +718,7 @@ PythonQtImport::getModuleCode(PythonQtImporter *self, const char* fullname, QStr
       return code;
     }
   }
-  PyErr_Format(PythonQtImportError, "can't find module '%.200s'", fullname);
+  PyErr_Format(PythonQt::self()->PythonQtImportError(), "can't find module '%.200s'", fullname);
 
   return NULL;
 }
@@ -793,7 +791,7 @@ void PythonQtImport::init()
 
   PyObject *mod;
 
-  if (PyType_Ready(&PythonQtImporter_Type) < 0)
+  if (PyType_Ready(&global_PythonQtImporter_Type) < 0)
     return;
 
   /* Correct directory separator */
@@ -818,19 +816,19 @@ void PythonQtImport::init()
            NULL, PYTHON_API_VERSION);
 #endif
 
-  PythonQtImportError = PyErr_NewException(const_cast<char*>("PythonQtImport.PythonQtImportError"),
+  global_PythonQtImportError = PyErr_NewException(const_cast<char*>("PythonQtImport.PythonQtImportError"),
               PyExc_ImportError, NULL);
-  if (PythonQtImportError == NULL)
+  if (global_PythonQtImportError == NULL)
     return;
 
-  Py_INCREF(PythonQtImportError);
+  Py_INCREF(global_PythonQtImportError);
   if (PyModule_AddObject(mod, "PythonQtImportError",
-             PythonQtImportError) < 0)
+             global_PythonQtImportError) < 0)
     return;
 
-  Py_INCREF(&PythonQtImporter_Type);
+  Py_INCREF(&global_PythonQtImporter_Type);
   if (PyModule_AddObject(mod, "PythonQtImporter",
-             (PyObject *)&PythonQtImporter_Type) < 0)
+             (PyObject *)&global_PythonQtImporter_Type) < 0)
     return;
 
   // set our importer into the path_hooks to handle all path on sys.path
