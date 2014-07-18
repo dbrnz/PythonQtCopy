@@ -344,11 +344,11 @@ PyObject *PythonQtSlotFunction_CallImpl(PythonQtClassInfo* classInfo, QObject* o
       PyErr_Clear();
       ok = PythonQtCallSlot(classInfo, objectToCall, args, false, info, firstArg, &r, directReturnValuePointer);
       if (!ok && !PyErr_Occurred()) {
-        QString e = QString("Called ") + info->fullSignature() + " with wrong arguments: " + PythonQtConv::PyObjGetString(args);
+        QString e = QString("Called ") + info->fullSignature() + " with wrong arguments: " + (args?PythonQtConv::PyObjGetString(args):"");
         PyErr_SetString(PyExc_ValueError, e.toLatin1().data());
       }
     } else {
-      QString e = QString("Called ") + info->fullSignature() + " with wrong number of arguments: " + PythonQtConv::PyObjGetString(args);
+      QString e = QString("Called ") + info->fullSignature() + " with wrong number of arguments: " + (args?PythonQtConv::PyObjGetString(args):"");
       PyErr_SetString(PyExc_ValueError, e.toLatin1().data());
     }
   }
