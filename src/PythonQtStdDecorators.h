@@ -154,6 +154,8 @@ public Q_SLOTS:
   QByteArray static_QMetaObject_normalizedSignature(const char *method) { return QMetaObject::normalizedSignature(method); }
   QByteArray static_QMetaObject_normalizedType(const char *type) { return QMetaObject::normalizedType(type); }
 
+  void static_QMetaObject_connectSlotsByName(QObject* obj) { return QMetaObject::connectSlotsByName(obj); }
+
 };
 
 #endif
